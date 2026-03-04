@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ricky Brut (BRUT) | Mining & Staking Protocol</title>
+    <!-- Ikon Tab Browser (Favicon) -->
+    <link rel="icon" type="image/png" href="https://gateway.pinata.cloud/ipfs/bafybeidxbqamvpfxy672swkmg5aftlfc34sp6worj6q3avykarzat2ty6m">
+    <!-- Library Eksternal -->
+    <script src="https://cdn.ethers.io"></script>
+    <script src="https://cdn.jsdelivr.net"></script>
+    <style>
+        :root { --primary: #f3ba2f; --bg: #0b0b0b; --card: rgba(25, 25, 25, 0.9); --text: #ffffff; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; overflow-x: hidden; }
+        #particles-js { position: fixed; width: 100%; height: 100%; z-index: -1; top: 0; left: 0; }
+        .container { width: 100%; max-width: 480px; margin: auto; padding: 20px; box-sizing: border-box; padding-bottom: 110px; position: relative; z-index: 1; }
+        .header { text-align: center; padding: 30px 0; }
+        .card { background: var(--card); border-radius: 20px; padding: 25px; margin-top: 15px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
+        button { background: linear-gradient(45deg, #f3ba2f, #f09819); border: none; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; transition: 0.3s; color: #000; text-transform: uppercase; letter-spacing: 1px; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(243, 186, 47, 0.4); }
+        input { width: 100%; padding: 14px; margin-top: 12px; border-radius: 10px; border: 1px solid #333; background: rgba(0,0,0,0.3); color: white; box-sizing: border-box; text-align: center; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: rgba(15, 15, 15, 0.98); display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #333; z-index: 100; left: 50%; transform: translateX(-50%); }
+        .nav-item { color: #666; font-size: 11px; cursor: pointer; text-align: center; flex: 1; }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
+        .hidden { display: none; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px 0; }
+        .stat-box { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-box span { display: block; color: var(--primary); font-size: 16px; font-weight: bold; margin-top: 5px; }
+        .notice { background: linear-gradient(135deg, rgba(243,186,47,0.15), rgba(0,0,0,0.5)); border: 1px solid var(--primary); padding: 15px; border-radius: 15px; text-align: left; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div id="particles-js"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1 style="margin:0; color:var(--primary); font-size: 26px; letter-spacing: 2px;">RICKY BRUT</h1>
+            <p id="addrDisp" style="font-size: 10px; color: #888; margin-top: 5px;">WALLET NOT CONNECTED</p>
+            <button id="connectBtn">CONNECT WALLET</button>
+        </div>
+
+        <!-- 1. BERANDA -->
+        <div id="tab-beranda" class="content">
+            <div class="notice">
+                <h3 style="color: var(--primary); margin: 0 0 5px 0; font-size: 14px;">📢 PENGUMUMAN</h3>
+                <p style="font-size: 12px; margin: 0; line-height: 1.4;">Selamat datang di Mainnet BRUT! Gunakan fitur Referral untuk mendapatkan bonus 20 BRUT setiap kali teman Anda menambang.</p>
+            </div>
+            <div class="card">
+                <img src="https://gateway.pinata.cloud/ipfs/bafybeidxbqamvpfxy672swkmg5aftlfc34sp6worj6q3avykarzat2ty6m" style="width:110px; border-radius:50%; margin-bottom:15px; border: 2px solid var(--primary); box-shadow: 0 0 20px rgba(243,186,47,0.4);">
+                <h3>BRUT Protocol</h3>
+                <p style="font-size: 13px; color: #aaa;">Sistem penambangan dan staking otomatis yang transparan di jaringan Binance Smart Chain.</p>
+                <button onclick="addToken()" style="background:transparent; border: 1px solid var(--primary); color: var(--primary);">+ ADD BRUT TO WALLET</button>
+            </div>
+        </div>
+
+        <!-- 2. PENAMBANGAN -->
+        <div id="tab-penambangan" class="content hidden">
+            <div class="card">
+                <h2 style="margin-top:0">⛏️ MINING</h2>
+                <p style="font-size: 12px; color: #888;">Masukkan alamat Referrer (Opsional)</p>
+                <input type="text" id="refAddr" placeholder="0x...">
+                <button onclick="mine()" id="btnMine" style="height: 75px; margin-top: 15px; font-size: 18px;">START EXTRACTION</button>
+                <p style="font-size: 11px; color: #555; margin-top:10px;">Cooldown: 24 Jam | Membutuhkan BNB Gas</p>
+            </div>
+        </div>
+
+        <!-- 3. STAKING -->
+        <div id="tab-staking" class="content hidden">
+            <div class="card">
+                <h2 style="margin-top:0">🏦 VAULT</h2>
+                <div style="background: rgba(243,186,47,0.1); padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px dashed var(--primary);">
+                    <p style="font-size: 10px; margin: 0; color: #aaa;">TOTAL GLOBAL STAKED</p>
+                    <span id="globalStaked" style="font-size: 22px; font-weight: bold; color: var(--primary);">0.00</span> <small>BRUT</small>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat-box">My Staked<span id="stakedBal">0.00</span></div>
+                    <div class="stat-box">My Rewards<span id="rewardBal">0.0000</span></div>
+                </div>
+                <input type="number" id="stakeAmt" placeholder="Jumlah BRUT">
+                <button onclick="approveSTK()" style="background: #333; color:white; border: 1px solid #444;">1. APPROVE</button>
+                <button onclick="stake()">2. DEPOSIT</button>
+                <div style="display: flex; gap: 8px; margin-top:10px">
+                    <button onclick="claim()" style="background: #1b4d3e; color: #4ade80;">CLAIM</button>
+                    <button onclick="withdraw()" style="background: #4d1b1b; color: #f87171;">WITHDRAW</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. INFO & ROADMAP -->
+        <div id="tab-info" class="content hidden">
+            <div class="card">
+                <h2 style="margin-top:0">📊 DATA & ROADMAP</h2>
+                <div style="text-align: left; font-size: 13px; line-height: 1.8;">
+                    <div style="display:flex; justify-content:space-between">Total Supply: <b id="ts">1.000.000.000</b></div>
+                    <div style="display:flex; justify-content:space-between">Max Supply: <b>21.0M BRUT</b></div>
+                    <div style="display:flex; justify-content:space-between">Referral Count: <b id="myRef">0</b></div>
+                </div>
+                <div id="refLinkArea"></div>
+
+                <div style="text-align: left; margin-top: 25px; border-top: 1px solid #333; padding-top: 15px;">
+                    <h4 style="color:var(--primary); margin: 0;">PHASE 1: Launch ✅</h4>
+                    <p style="font-size: 11px; color: #888; margin-bottom: 15px;">Website DApp & Smart Contract Deployment.</p>
+                    <h4 style="color:var(--primary); margin: 0;">PHASE 2: Expansion 🚀</h4>
+                    <p style="font-size: 11px; color: #888; margin-bottom: 15px;">Community growth & PancakeSwap listing.</p>
+                    <h4 style="color:var(--primary); margin: 0;">PHASE 3: Ecosystem 🌐</h4>
+                    <p style="font-size: 11px; color: #888;">Utility expansion & NFT Staking integration.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" id="nav-beranda" onclick="showTab('beranda')">🏠<br>Home</div>
+        <div class="nav-item" id="nav-penambangan" onclick="showTab('penambangan')">⛏️<br>Mining</div>
+        <div class="nav-item" id="nav-staking" onclick="showTab('staking')">🏦<br>Vault</div>
+        <div class="nav-item" id="nav-info" onclick="showTab('info')">ℹ️<br>Info</div>
+    </div>
+
+    <script>
+        const CA = "0x13597c6F66819a9daAB2Bab97037ea5E5605561D";
+        const ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"allowance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientAllowance","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientBalance","type":"error"},{"inputs":[{"internalType":"address","name":"approver","type":"address"}],"name":"ERC20InvalidApprover","type":"error"},{"inputs":[{"internalType":"address","name":"receiver","type":"address"}],"name":"ERC20InvalidReceiver","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"}],"name":"ERC20InvalidSender","type":"error"},{"inputs":[{"internalType":"address","name":"spender","type":"address"}],"name":"ERC20InvalidSpender","type":"error"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"OwnableInvalidOwner","type":"error"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"OwnableUnauthorizedAccount","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[],"name":"MAX_SUPPLY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MINING_COOLDOWN","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REFERRAL_BONUS","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"value","type":"uint256"}],"name":"burn","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"burnFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"calculateReward","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"claimStakeReward","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getLogoURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastMined","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lockOwnerTokensForOneYear","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"lockUntil","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"metadata","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"mine","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"miningReward","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextHalvingSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"referralCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"newURI","type":"string"}],"name":"setMetadataURI","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"stake","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"stakeTimestamp","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"stakedAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"withdrawStake","outputs":[],"stateMutability":"nonpayable","type":"function"}];
+
+        let provider, signer, contract, userAddress;
+
+        // Inisialisasi Partikel Latar Belakang
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#f3ba2f" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.2 },
+                "size": { "value": 2 },
+                "line_linked": { "enable": true, "distance": 150, "color": "#f3ba2f", "opacity": 0.1, "width": 1 },
+                "move": { "enable": true, "speed": 1.5 }
+            }
+        });
+
+        // Deteksi Referral di URL
+        const refUrl = new URLSearchParams(window.location.search).get('ref');
+        if(refUrl) document.getElementById('refAddr').value = refUrl;
+
+        async function connect() {
+            if (!window.ethereum) return alert("Buka di Browser Metamask!");
+            try {
+                // Auto Switch ke BNB Smart Chain
+                try { await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x38' }] }); }
+                catch (e) { if (e.code === 4902) await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{ chainId: '0x38', chainName: 'BSC', rpcUrls: ['https://bsc-dataseed.binance.org'], nativeCurrency: { symbol: 'BNB', decimals: 18 } }] }); }
+
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                const accounts = await provider.send("eth_requestAccounts", []);
+                userAddress = accounts[0];
+                signer = provider.getSigner();
+                contract = new ethers.Contract(CA, ABI, signer);
+
+                document.getElementById('addrDisp').innerText = "CONNECTED: " + userAddress.substring(0,6) + "..." + userAddress.substring(38);
+                document.getElementById('connectBtn').style.display = 'none';
+                
+                loadData();
+                genLink();
+            } catch (e) { console.log(e); }
+        }
+
+        async function loadData() {
+            try {
+                const ts = await contract.totalSupply();
+                const globalStakedRaw = await contract.balanceOf(CA); // Saldo kontrak = Total Staked
+                const stk = await contract.stakedAmount(userAddress);
+                const rwd = await contract.calculateReward(userAddress);
+                const rcnt = await contract.referralCount(userAddress);
+
+                document.getElementById('ts').innerText = parseFloat(ethers.utils.formatUnits(ts, 18)).toLocaleString() + " BRUT";
+                document.getElementById('globalStaked').innerText = parseFloat(ethers.utils.formatUnits(globalStakedRaw, 18)).toLocaleString();
+                document.getElementById('stakedBal').innerText = parseFloat(ethers.utils.formatUnits(stk, 18)).toFixed(2);
+                document.getElementById('rewardBal').innerText = parseFloat(ethers.utils.formatUnits(rwd, 18)).toFixed(4);
+                document.getElementById('myRef').innerText = rcnt.toString();
+            } catch (err) { console.log(err); }
+        }
+
+        function genLink() {
+            const link = window.location.origin + window.location.pathname + "?ref=" + userAddress;
+            document.getElementById('refLinkArea').innerHTML = `
+                <div style="margin-top:20px; border-top:1px solid #333; padding-top:15px">
+                    <p style="font-size:10px; margin-bottom:5px;">YOUR REFERRAL LINK:</p>
+                    <input type="text" value="${link}" id="linkText" readonly style="font-size:10px; padding:8px;">
+                    <button onclick="copyRef()" style="font-size:10px; padding:8px; margin-top:5px; background: #222; color: #f3ba2f; border: 1px solid #f3ba2f;">COPY REFERRAL LINK</button>
+                </div>
+            `;
+        }
+
+        function copyRef() {
+            const t = document.getElementById('linkText'); t.select(); document.execCommand("copy"); alert("Link Copied!");
+        }
+
+        async function mine() {
+            try {
+                const ref = document.getElementById('refAddr').value || "0x0000000000000000000000000000000000000000";
+                const tx = await contract.mine(ref);
+                await tx.wait();
+                alert("Mining Success!"); location.reload();
+            } catch (e) { alert("Error: Sedang Cooldown atau Gas tidak cukup."); }
+        }
+
+        async function approveSTK() {
+            const val = ethers.utils.parseUnits(document.getElementById('stakeAmt').value, 18);
+            const tx = await contract.approve(CA, val);
+            await tx.wait(); alert("Approved! Silakan klik Deposit.");
+        }
+
+        async function stake() {
+            const val = ethers.utils.parseUnits(document.getElementById('stakeAmt').value, 18);
+            const tx = await contract.stake(val);
+            await tx.wait(); alert("Staking Berhasil!"); location.reload();
+        }
+
+        async function claim() { await (await contract.claimStakeReward()).wait(); location.reload(); }
+        async function withdraw() { await (await contract.withdrawStake()).wait(); location.reload(); }
+
+        async function addToken() {
+            await window.ethereum.request({ method: 'wallet_watchAsset', params: { type: 'ERC20', options: { address: CA, symbol: 'BRUT', decimals: 18, image: 'https://gateway.pinata.cloud' } } });
+        }
+
+        function showTab(id) {
+            document.querySelectorAll('.content').forEach(e => e.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.remove('hidden');
+            document.getElementById('nav-' + id).classList.add('active');
+        }
+
+        document.getElementById('connectBtn').onclick = connect;
+    </script>
+</body>
+</html>
